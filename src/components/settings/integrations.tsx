@@ -1,47 +1,56 @@
-import { Badge, Button, Card, CardContent } from "@mui/material"
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface Integration {
-  name: string
-  status: "Connected" | "Disconnected"
+  name: string;
+  status: "Connected" | "Disconnected";
 }
 
-const Integrations: React.FC = () => {
+export const IntegrationsSettings: React.FC = () => {
   const integrations: Integration[] = [
     { name: "Integration 1", status: "Connected" },
     { name: "Integration 2", status: "Disconnected" },
-  ]
+  ];
 
   return (
     <Card>
       <CardContent>
-        <div>
+        <div className="space-y-4">
           {integrations.map((integration) => (
-            <div key={integration.name} className="flex justify-between items-center mb-4">
+            <div
+              key={integration.name}
+              className="flex items-center justify-between"
+            >
               <div className="flex items-center">
                 <div className="mr-4">
                   <span className="font-medium">{integration.name}</span>
                 </div>
                 <Badge
                   color="success"
-                  className={
-                    integration.status === "Connected"
-                      ? "bg-green-50 text-green-700 border-green-200"
-                      : "bg-gray-50 text-gray-700 border-gray-200"
-                  }
+                  variant="secondary"
+                  className={cn({
+                    "bg-green-100 text-green-800":
+                      integration.status === "Connected",
+                    "bg-red-100 text-red-800":
+                      integration.status === "Disconnected",
+                  })}
                 >
                   {integration.status}
                 </Badge>
               </div>
               <div>
-                <Button variant="outline">{integration.status === "Connected" ? "Disconnect" : "Connect"}</Button>
+                <Button variant="outline">
+                  {integration.status === "Connected"
+                    ? "Disconnect"
+                    : "Connect"}
+                </Button>
               </div>
             </div>
           ))}
         </div>
       </CardContent>
     </Card>
-  )
-}
-
-export default Integrations
-
+  );
+};

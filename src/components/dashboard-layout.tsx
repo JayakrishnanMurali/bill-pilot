@@ -1,15 +1,4 @@
 "use client";
-
-import { useState, type ReactNode } from "react";
-import {
-  Bell,
-  ChevronDown,
-  CreditCard,
-  Home,
-  PieChart,
-  Settings,
-  Users,
-} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,67 +19,71 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import {
+  Bell,
+  ChevronDown,
+  CreditCard,
+  Home,
+  PieChart,
+  Settings,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-export function DashboardLayout({ children }: { children: ReactNode }) {
-  const [activePage, setActivePage] = useState("dashboard");
+const routes = [
+  {
+    path: "/dashboard",
+    label: "Dashboard",
+    icon: Home,
+  },
+  {
+    path: "/dashboard/subscriptions",
+    label: "Subscriptions",
+    icon: CreditCard,
+  },
+  {
+    path: "/dashboard/analytics",
+    label: "Analytics",
+    icon: PieChart,
+  },
+  {
+    path: "/dashboard/team",
+    label: "Team",
+    icon: Users,
+  },
+  {
+    path: "/dashboard/settings",
+    label: "Settings",
+    icon: Settings,
+  },
+];
+
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
 
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar>
           <SidebarHeader className="border-b p-4">
-            <div className="flex items-center gap-2">
+            <Link href="/dashboard" className="flex items-center gap-2">
               <CreditCard className="h-6 w-6" />
               <span className="font-bold">Bill Pilot</span>
-            </div>
+            </Link>
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setActivePage("dashboard")}
-                  isActive={activePage === "dashboard"}
-                >
-                  <Home className="h-4 w-4" />
-                  <span>Dashboard</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setActivePage("subscriptions")}
-                  isActive={activePage === "subscriptions"}
-                >
-                  <CreditCard className="h-4 w-4" />
-                  <span>Subscriptions</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setActivePage("analytics")}
-                  isActive={activePage === "analytics"}
-                >
-                  <PieChart className="h-4 w-4" />
-                  <span>Analytics</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setActivePage("team")}
-                  isActive={activePage === "team"}
-                >
-                  <Users className="h-4 w-4" />
-                  <span>Team</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={() => setActivePage("settings")}
-                  isActive={activePage === "settings"}
-                >
-                  <Settings className="h-4 w-4" />
-                  <span>Settings</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+              {routes.map((route) => (
+                <SidebarMenuItem key={route.path}>
+                  <SidebarMenuButton asChild isActive={pathname === route.path}>
+                    <Link href={route.path}>
+                      <route.icon className="h-4 w-4" />
+                      <span>{route.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
             </SidebarMenu>
           </SidebarContent>
         </Sidebar>
@@ -118,7 +111,9 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>Profile</DropdownMenuItem>
                     <DropdownMenuItem>Settings</DropdownMenuItem>
-                    <DropdownMenuItem>Sign out</DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/">Sign out</Link>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
