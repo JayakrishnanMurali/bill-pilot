@@ -1,0 +1,127 @@
+"use client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import {
+  Bell,
+  ChevronDown,
+  CreditCard,
+  Home,
+  PieChart,
+  Settings,
+  Users,
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+
+const routes = [
+  {
+    path: "/dashboard",
+    label: "Dashboard",
+    icon: Home,
+  },
+  {
+    path: "/dashboard/subscriptions",
+    label: "Subscriptions",
+    icon: CreditCard,
+  },
+  {
+    path: "/dashboard/analytics",
+    label: "Analytics",
+    icon: PieChart,
+  },
+  {
+    path: "/dashboard/team",
+    label: "Team",
+    icon: Users,
+  },
+  {
+    path: "/dashboard/settings",
+    label: "Settings",
+    icon: Settings,
+  },
+];
+
+export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  return (
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <Sidebar>
+          <SidebarHeader className="border-b p-4">
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <CreditCard className="h-6 w-6" />
+              <span className="font-bold">Bill Pilot</span>
+            </Link>
+          </SidebarHeader>
+          <SidebarContent>
+            <SidebarMenu>
+              {routes.map((route) => (
+                <SidebarMenuItem key={route.path}>
+                  <SidebarMenuButton asChild isActive={pathname === route.path}>
+                    <Link href={route.path}>
+                      <route.icon className="h-4 w-4" />
+                      <span>{route.label}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarContent>
+        </Sidebar>
+        <div className="flex-1">
+          <header className="border-b">
+            <div className="flex h-16 items-center gap-4 px-4">
+              <SidebarTrigger />
+              <div className="ml-auto flex items-center gap-4">
+                <Button variant="ghost" size="icon">
+                  <Bell className="h-4 w-4" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center gap-2">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src="/placeholder.svg" alt="@username" />
+                        <AvatarFallback>JD</AvatarFallback>
+                      </Avatar>
+                      <span>John Doe</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>Profile</DropdownMenuItem>
+                    <DropdownMenuItem>Settings</DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <Link href="/">Sign out</Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </header>
+          <main className="p-6">{children}</main>
+        </div>
+      </div>
+    </SidebarProvider>
+  );
+}
