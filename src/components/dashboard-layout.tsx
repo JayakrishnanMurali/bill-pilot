@@ -19,12 +19,14 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { cn } from "@/lib/utils";
 import {
   Bell,
   ChevronDown,
   CreditCard,
-  Home,
+  LayoutDashboard,
   PieChart,
+  ReceiptText,
   Settings,
   Users,
 } from "lucide-react";
@@ -35,7 +37,7 @@ const routes = [
   {
     path: "/dashboard",
     label: "Dashboard",
-    icon: Home,
+    icon: LayoutDashboard,
   },
   {
     path: "/dashboard/subscriptions",
@@ -66,20 +68,40 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <Sidebar>
-          <SidebarHeader className="border-b p-4">
+          <SidebarHeader className="border-b p-5">
             <Link href="/dashboard" className="flex items-center gap-2">
-              <CreditCard className="h-6 w-6" />
-              <span className="font-bold">Bill Pilot</span>
+              <ReceiptText className="h-4 w-4 text-secondary-foreground" />
+              <span className="text-base font-bold text-secondary-foreground">
+                Bill Pilot
+              </span>
             </Link>
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
               {routes.map((route) => (
-                <SidebarMenuItem key={route.path}>
-                  <SidebarMenuButton asChild isActive={pathname === route.path}>
+                <SidebarMenuItem
+                  className={cn(
+                    "p-2 transition-all duration-300 ease-in-out hover:bg-secondary/80",
+                    {
+                      "bg-secondary/40": pathname === route.path,
+                    },
+                  )}
+                  key={route.path}
+                >
+                  <SidebarMenuButton asChild>
                     <Link href={route.path}>
-                      <route.icon className="h-4 w-4" />
-                      <span>{route.label}</span>
+                      <route.icon
+                        className={cn("h-6 w-6", {
+                          "text-secondary-foreground": pathname === route.path,
+                        })}
+                      />
+                      <span
+                        className={cn({
+                          "text-secondary-foreground": pathname === route.path,
+                        })}
+                      >
+                        {route.label}
+                      </span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
