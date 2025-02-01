@@ -4,34 +4,48 @@ on:
   push:
     branches:
       - main
-    pull_request:
-      branches:
-        - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      # Step 1: Check out the repository.
+      - name: Checkout Repository
         uses: actions/checkout@v3
 
+      # Step 2: Set up Node.js and enable caching for pnpm.
+      # The "cache: pnpm" option caches your pnpm store based on your lockfile.
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: "18"
           cache: "pnpm"
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v2
-        with:
-          version: "9.1.4"
+      # Step 3: Install pnpm globally.
+      # This ensures that the pnpm binary is in the PATH.
+      - name: Install pnpm
+        run: npm install -g pnpm@9.1.4
 
-      - name: Install dependencies
+      - name: Enable corepack
+        run: corepack enable pnpm
+
+      # Step 4: Verify pnpm installation (optional but helpful for debugging).
+      - name: Verify pnpm installation
+        run: pnpm --version
+
+      # Step 5: Install project dependencies using pnpm.
+      - name: Install Dependencies
         run: pnpm install
 
+      # Step 6: Run linting and type checking.
+      # This step runs the combined "check" script from your package.json.
       - name: Lint and Type Check
         run: pnpm run check
 
+      # Step 7: Build the Next.js project.
       - name: Build Project
         run: pnpm run build
