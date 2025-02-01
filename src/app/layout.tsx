@@ -1,11 +1,11 @@
 import { Inter } from "next/font/google";
-import "../styles/globals.css";
+import "../styles/globals.css"; // Import global styles
 import type React from "react"; // Import React
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Susly - Subscription Management for Teams",
+  title: "Bill Pilot - Subscription Management for Teams",
   description: "Track, manage, and optimize your team's software subscriptions",
 };
 

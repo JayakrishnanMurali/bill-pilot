@@ -1,9 +1,17 @@
-"use client"
+"use client";
 
-import { useState, type ReactNode } from "react"
-import { Bell, ChevronDown, CreditCard, Home, PieChart, Settings, Users } from "lucide-react"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { useState, type ReactNode } from "react";
+import {
+  Bell,
+  ChevronDown,
+  CreditCard,
+  Home,
+  PieChart,
+  Settings,
+  Users,
+} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,7 +19,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -21,25 +29,28 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
 export function DashboardLayout({ children }: { children: ReactNode }) {
-  const [activePage, setActivePage] = useState("dashboard")
+  const [activePage, setActivePage] = useState("dashboard");
 
   return (
     <SidebarProvider>
-      <div className="flex min-h-screen">
+      <div className="flex min-h-screen w-full">
         <Sidebar>
           <SidebarHeader className="border-b p-4">
             <div className="flex items-center gap-2">
               <CreditCard className="h-6 w-6" />
-              <span className="font-bold">Susly</span>
+              <span className="font-bold">Bill Pilot</span>
             </div>
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => setActivePage("dashboard")} isActive={activePage === "dashboard"}>
+                <SidebarMenuButton
+                  onClick={() => setActivePage("dashboard")}
+                  isActive={activePage === "dashboard"}
+                >
                   <Home className="h-4 w-4" />
                   <span>Dashboard</span>
                 </SidebarMenuButton>
@@ -54,19 +65,28 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => setActivePage("analytics")} isActive={activePage === "analytics"}>
+                <SidebarMenuButton
+                  onClick={() => setActivePage("analytics")}
+                  isActive={activePage === "analytics"}
+                >
                   <PieChart className="h-4 w-4" />
                   <span>Analytics</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => setActivePage("team")} isActive={activePage === "team"}>
+                <SidebarMenuButton
+                  onClick={() => setActivePage("team")}
+                  isActive={activePage === "team"}
+                >
                   <Users className="h-4 w-4" />
                   <span>Team</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton onClick={() => setActivePage("settings")} isActive={activePage === "settings"}>
+                <SidebarMenuButton
+                  onClick={() => setActivePage("settings")}
+                  isActive={activePage === "settings"}
+                >
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
                 </SidebarMenuButton>
@@ -108,6 +128,5 @@ export function DashboardLayout({ children }: { children: ReactNode }) {
         </div>
       </div>
     </SidebarProvider>
-  )
+  );
 }
-
