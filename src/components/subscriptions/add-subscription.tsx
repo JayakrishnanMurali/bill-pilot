@@ -1,20 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use client";
 
-import * as React from "react";
-import { Check, ChevronsUpDown, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
   FormControl,
@@ -23,11 +10,20 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import MultipleSelector from "@/components/ui/multi-select";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -36,10 +32,13 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon, Plus } from "lucide-react";
+import * as React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { cn } from "@/lib/utils";
 
 export type Category = {
   value: string;
@@ -68,36 +67,40 @@ const formSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  category: z.string({
-    required_error: "Please select a category.",
+  categories: z.array(z.string()).min(1, {
+    message: "Please select at least one category.",
   }),
   cost: z.string().regex(/^\d+(\.\d{1,2})?$/, {
     message: "Please enter a valid amount.",
   }),
-  renewal: z.string().min(2, {
-    message: "Please enter a renewal period.",
+  renewal: z.string({
+    required_error: "Please select a renewal period.",
   }),
-  users: z.string().regex(/^\d+$/, {
-    message: "Please enter a valid number of users.",
-  }),
-  owner: z.string().min(2, {
-    message: "Owner must be at least 2 characters.",
+  renewalDate: z.date({
+    required_error: "Please select a renewal date.",
   }),
 });
 
+export const renewalPeriods = [
+  { value: "monthly", label: "Monthly" },
+  { value: "yearly", label: "Yearly" },
+  { value: "one_time", label: "One-time" },
+  { value: "permanent", label: "Permanent" },
+] as const;
+
+// infer formScheme type
+type FormSchema = z.infer<typeof formSchema>;
+
 export function AddSubscription() {
-  const [open, setOpen] = React.useState(false);
   const [sheetOpen, setSheetOpen] = React.useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      category: "",
+      categories: [],
       cost: "",
-      renewal: "Monthly",
-      users: "",
-      owner: "",
+      renewal: "monthly",
     },
   });
 
@@ -141,62 +144,28 @@ export function AddSubscription() {
               />
               <FormField
                 control={form.control}
-                name="category"
+                name="categories"
                 render={({ field }) => (
-                  <FormItem className="flex flex-col">
-                    <FormLabel>Category</FormLabel>
-                    <Popover open={open} onOpenChange={setOpen}>
-                      <PopoverTrigger asChild>
-                        <FormControl>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            aria-expanded={open}
-                            className={cn(
-                              "w-full justify-between",
-                              !field.value && "text-muted-foreground",
-                            )}
-                          >
-                            {field.value
-                              ? categories.find(
-                                  (category) => category.value === field.value,
-                                )?.label
-                              : "Select category"}
-                            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                          </Button>
-                        </FormControl>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-[400px] p-0">
-                        <Command>
-                          <CommandInput placeholder="Search categories..." />
-                          <CommandList>
-                            <CommandEmpty>No category found.</CommandEmpty>
-                            <CommandGroup>
-                              {categories.map((category) => (
-                                <CommandItem
-                                  value={category.label}
-                                  key={category.value}
-                                  onSelect={() => {
-                                    form.setValue("category", category.value);
-                                    setOpen(false);
-                                  }}
-                                >
-                                  <Check
-                                    className={cn(
-                                      "mr-2 h-4 w-4",
-                                      category.value === field.value
-                                        ? "opacity-100"
-                                        : "opacity-0",
-                                    )}
-                                  />
-                                  {category.label}
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </CommandList>
-                        </Command>
-                      </PopoverContent>
-                    </Popover>
+                  <FormItem>
+                    <FormLabel>Categories</FormLabel>
+                    <FormControl>
+                      <MultipleSelector
+                        options={categories}
+                        value={field.value?.map(
+                          (value) =>
+                            categories.find((c) => c.value === value) ?? {
+                              value,
+                              label: value,
+                            },
+                        )}
+                        onChange={(options) =>
+                          field.onChange(options.map((o) => o.value))
+                        }
+                        placeholder="Select categories"
+                        creatable
+                        hideClearAllButton
+                      />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -209,14 +178,13 @@ export function AddSubscription() {
                     <FormItem>
                       <FormLabel>Cost</FormLabel>
                       <FormControl>
-                        <div className="relative">
-                          <span className="absolute left-3 top-2.5">$</span>
-                          <Input
-                            className="pl-6"
-                            placeholder="0.00"
-                            {...field}
-                          />
-                        </div>
+                        <Input
+                          placeholder="0.00"
+                          variant="outline"
+                          startContent="$"
+                          type="number"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -229,41 +197,67 @@ export function AddSubscription() {
                     <FormItem>
                       <FormLabel>Renewal Period</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., Monthly" {...field} />
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select renewal period" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monthly">Monthly</SelectItem>
+                            <SelectItem value="quarterly">Quarterly</SelectItem>
+                            <SelectItem value="yearly">Yearly</SelectItem>
+                            <SelectItem value="one_time">One Time</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="users"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Number of Users</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="0" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="owner"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Owner</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter team or owner" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="renewalDate"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Renewal Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant={"outline"}
+                            className={cn(
+                              "w-full pl-3 text-left font-normal",
+                              !field.value && "text-muted-foreground",
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, "PPP")
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) =>
+                            date < new Date(new Date().setHours(0, 0, 0, 0))
+                          }
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <div className="flex justify-end space-x-4 pt-4">
                 <Button variant="outline" onClick={() => setSheetOpen(false)}>
                   Cancel
